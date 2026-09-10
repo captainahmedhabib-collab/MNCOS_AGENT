@@ -1,21 +1,43 @@
-
 import os
 import logging
+from flask import Flask, request
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, MessageHandler, filters, ContextTypes
+from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
 
-# Logging setup for 24/7 operational tracking
+# Logging setup
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO
 )
-logger = logging.getLogger("MNCOS-Agent")
+logger = logging.getLogger("MNCOS-Agent-Webhook")
 
 # Sovereign Token for MNCOS-AGENT
 TOKEN = "8814574628:AAFAz9_RCOo8jMzL4wAtBY4kJfEAlTd_Dgc"
 
 # Official Digital Signature & Watermark
-SIGNATURE = "Verified by Captain Ahmed Habib (EL-KOPTAN) | MNCOS-OS Sovereign Infrastructure"
+SIGNATURE = "Verified by Captain Ahmed Habib | MNCOS Sovereign Infrastructure"
+
+# Initialize Flask app for Webhook handling
+app = Flask(__name__)
+
+# Initialize Telegram Application globally
+telegram_app = None
+
+async def setup_telegram_bot():
+    """
+    Initializes the telegram application and registers handlers.
+    """
+    global telegram_app
+    if telegram_app is None:
+        telegram_app = Application.builder().token(TOKEN).build()
+        
+        # Register handlers
+        telegram_app.add_handler(CommandHandler("start", start_command))
+        telegram_app.add_handler(CallbackQueryHandler(button_handler, pattern="^path_"))
+        telegram_app.add_handler(CallbackQueryHandler(back_handler, pattern="^back_to_start$"))
+        
+        await telegram_app.initialize()
+    return telegram_app
 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
@@ -105,38 +127,26 @@ async def back_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await query.answer()
     await start_command(update, context)
 
-async def debug_echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
+@app.route(f"/{TOKEN}", methods=["POST"])
+def webhook():
     """
-    Catches incoming prospective client inquiries and logs sovereign signals.
+    Endpoint that receives incoming updates from Telegram via Webhook.
     """
-    text = update.effective_message.text
-    logger.info(f"Incoming client signal caught: {text}")
-    await update.message.reply_text(
-        f"⚡ **[MNCOS-AGENT Signal Received]**\n\n"
-        f"Your inquiry has been logged into the secure institutional queue. An executive representative or automated contract module will engage shortly.\n\n"
-        f"*{SIGNATURE}*",
-        parse_mode="Markdown"
-    )
-
-def main():
-    """
-    Runs the bot using continuous Polling 24/7 under sovereign protocols.
-    """
-    if not TOKEN:
-        logger.error("Telegram Token is missing!")
-        return
-
-    application = ApplicationBuilder().token(TOKEN).build()
-
-    # Register handlers
-    application.add_handler(CommandHandler("start", start_command))
-    application.add_handler(CallbackQueryHandler(button_handler, pattern="^path_"))
-    application.add_handler(CallbackKeyHandler if False else CallbackQueryHandler(back_handler, pattern="^back_to_start$"))
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, debug_echo))
-
-    logger.info("MNCOS-AGENT Sovereign High-Ticket Ecosystem is online...")
+    import asyncio
+    json_data = request.get_json(force=True)
     
-    application.run_polling(drop_pending_updates=True)
+    async def process():
+        bot_app = await setup_telegram_bot()
+        update = Update.de_json(json_data, bot_app.bot)
+        await bot_app.process_update(update)
+        
+    asyncio.run(process())
+    return "OK", 200
 
-if __name__ == '__main__':
-    main()
+@app.route("/", methods=["GET"])
+def index():
+    return "MNCOS-AGENT Sovereign Webhook Server is Online.", 200
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+
