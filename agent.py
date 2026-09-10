@@ -1,7 +1,8 @@
+
 import os
 import logging
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes
+from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, MessageHandler, filters, ContextTypes
 
 # Logging setup for 24/7 operational tracking
 logging.basicConfig(
@@ -10,7 +11,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger("MNCOS-Agent")
 
-# New Sovereign Token for MNCOS-AGENT
+# Sovereign Token for MNCOS-AGENT
 TOKEN = "8814574628:AAFAz9_RCOo8jMzL4wAtBY4kJfEAlTd_Dgc"
 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -70,6 +71,14 @@ async def back_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await query.answer()
     await start_command(update, context)
 
+async def debug_echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """
+    Catches any incoming text message, logs it, and responds to ensure bidirectional communication.
+    """
+    text = update.effective_message.text
+    logger.info(f"Incoming message caught: {text}")
+    await update.message.reply_text(f"⚡ [MNCOS-AGENT] Signal acknowledged: '{text}'. System operating at Zero-Vulnerability.")
+
 def main():
     """
     Runs the bot using continuous Polling 24/7 with drop_pending_updates.
@@ -84,6 +93,9 @@ def main():
     application.add_handler(CommandHandler("start", start_command))
     application.add_handler(CallbackQueryHandler(button_handler, pattern="^path_"))
     application.add_handler(CallbackQueryHandler(back_handler, pattern="^back_to_start$"))
+    
+    # General message handler to guarantee response on any text
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, debug_echo))
 
     logger.info("MNCOS-AGENT Sovereign Ecosystem is online and running 24/7...")
     
