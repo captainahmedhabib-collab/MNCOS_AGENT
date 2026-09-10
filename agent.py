@@ -10,8 +10,8 @@ logging.basicConfig(
 )
 logger = logging.getLogger("MNCOS-Agent")
 
-# Direct Bot Token integration for EL-KOPTAN
-TOKEN = "8947725456:AAFLvTSRz0g3W30TWpBeoBMvlm2W7-AcLao"
+# New Sovereign Token for MNCOS-AGENT
+TOKEN = "8814574628:AAFAz9_RCOo8jMzL4wAtBY4kJfEAlTd_Dgc"
 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
@@ -72,7 +72,7 @@ async def back_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 def main():
     """
-    Runs the bot using continuous Polling 24/7 with drop_pending_updates to clear old webhooks.
+    Runs the bot using continuous Polling 24/7 with drop_pending_updates.
     """
     if not TOKEN:
         logger.error("Telegram Token is missing!")
@@ -85,9 +85,8 @@ def main():
     application.add_handler(CallbackQueryHandler(button_handler, pattern="^path_"))
     application.add_handler(CallbackQueryHandler(back_handler, pattern="^back_to_start$"))
 
-    logger.info("MNCOS Multi-Agent Sovereign Ecosystem is online and running 24/7...")
+    logger.info("MNCOS-AGENT Sovereign Ecosystem is online and running 24/7...")
     
-    # drop_pending_updates=True clears old webhook packets to ensure direct local polling
     application.run_polling(drop_pending_updates=True)
 
 if __name__ == '__main__':
