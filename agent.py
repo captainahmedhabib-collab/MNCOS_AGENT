@@ -14,23 +14,27 @@ logger = logging.getLogger("MNCOS-Agent")
 # Sovereign Token for MNCOS-AGENT
 TOKEN = "8814574628:AAFAz9_RCOo8jMzL4wAtBY4kJfEAlTd_Dgc"
 
+# Official Digital Signature & Watermark
+SIGNATURE = "Verified by Captain Ahmed Habib (EL-KOPTAN) | MNCOS-OS Sovereign Infrastructure"
+
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
-    Presents the core sovereign services interface.
+    Presents the core sovereign high-ticket executive interface.
     """
     welcome_message = (
-        f"Welcome, Captain Ahmed Habib (EL-KOPTAN) 🫡\n\n"
-        f"The **MNCOS Multi-Agent Sovereign Ecosystem** is live.\n"
-        f"Please select your strategic operational pathway below:"
+        f"Welcome, Executive Partner 🫡\n\n"
+        f"You have accessed the **MNCOS Multi-Agent Sovereign Ecosystem**.\n"
+        f"Operating under Civilizational Coherence Core™ standards.\n\n"
+        f"Select a strategic institutional pathway below to initiate deployment:"
     )
     
-    # Sleek English buttons for the core services
+    # High-Ticket B2B Service Pathways
     keyboard = [
-        [InlineKeyboardButton("📋 [01] Scope, Timeline & Commercials", callback_data="path_scope")],
-        [InlineKeyboardButton("🔒 [02] Confidential NDA Session", callback_data="path_nda")],
-        [InlineKeyboardButton("⚓ [03] Fleet & Asset Audit Scope", callback_data="path_audit")],
-        [InlineKeyboardButton("⚡ [04] Offline Emergency Node License", callback_data="path_offline")],
-        [InlineKeyboardButton("📈 [05] Strategic Investment & Scaling", callback_data="path_investment")]
+        [InlineKeyboardButton("📋 [01] Scope, Timeline & Commercials ($25k+)", callback_data="path_scope")],
+        [InlineKeyboardButton("🔒 [02] Confidential NDA & Sovereign Protocol", callback_data="path_nda")],
+        [InlineKeyboardButton("⚓ [03] Fleet & Asset Audit Scope ($50k)", callback_data="path_audit")],
+        [InlineKeyboardButton("⚡ [04] Offline Emergency Node License ($100k)", callback_data="path_offline")],
+        [InlineKeyboardButton("📈 [05] Strategic Investment & Scaling ($1M+)", callback_data="path_investment")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     
@@ -41,7 +45,7 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
-    Handles interactive pathway selections with high-end executive responses.
+    Handles high-ticket executive conversions and strategic pitch responses.
     """
     query = update.callback_query
     await query.answer()
@@ -49,17 +53,47 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     data = query.data
     
     if data == "path_scope":
-        response_text = "🎯 **[Service 01] Scope / Timeline / Commercials / Compliance**\n\nDrafting comprehensive project frameworks under Civilizational Coherence Core™ standards."
+        response_text = (
+            "🎯 **[Service 01] Commercial Scope & Compliance Framework**\n\n"
+            "• **Target:** Enterprise Maritime Operators & Port Authorities.\n"
+            "• **Deliverable:** Comprehensive project blueprints, deterministic execution timelines, and regulatory compliance frameworks.\n"
+            "• **Value Tier:** Starting at $25,000 per institutional deployment.\n\n"
+            f"*{SIGNATURE}*"
+        )
     elif data == "path_nda":
-        response_text = "🔒 **[Service 02] Confidential NDA Protocol**\n\nInitializing secure cryptographic session and sovereign verification channels."
+        response_text = (
+            "🔒 **[Service 02] Confidential NDA & Sovereign Protocol**\n\n"
+            "• **Target:** Strategic Partners & Institutional Investors.\n"
+            "• **Deliverable:** Cryptographic secure session initialization and binding non-disclosure frameworks for proprietary Black-Box architecture.\n"
+            "• **Status:** Ready for immediate digital execution.\n\n"
+            f"*{SIGNATURE}*"
+        )
     elif data == "path_audit":
-        response_text = "⚓ **[Service 03] Fleet & Asset Audit Scope**\n\nLead-Scout Agent is standing by to receive maritime asset parameters and telemetry data."
+        response_text = (
+            "⚓ **[Service 03] Fleet & Asset Audit Scope**\n\n"
+            "• **Target:** Global Fleet Managers & Shipping Lines.\n"
+            "• **Deliverable:** Full telemetry analysis, structural efficiency audit, and Zero-Vulnerability infrastructure hardening.\n"
+            "• **Value Tier:** $50,000 per fleet audit package.\n\n"
+            f"*{SIGNATURE}*"
+        )
     elif data == "path_offline":
-        response_text = "⚡ **[Service 04] Offline Emergency Node License**\n\nVerifying sovereign offline architecture and autonomous redundancy protocols."
+        response_text = (
+            "⚡ **[Service 04] Offline Emergency Node License**\n\n"
+            "• **Target:** Critical Marine Infrastructures Requiring Total Isolation.\n"
+            "• **Deliverable:** Sovereign autonomous offline node license, eliminating cyber-vulnerabilities and ensuring 24/7 mission-critical redundancy.\n"
+            "• **Value Tier:** $100,000 B2B Enterprise License.\n\n"
+            f"*{SIGNATURE}*"
+        )
     elif data == "path_investment":
-        response_text = "📈 **[Service 05] Strategic Investment & Scaling**\n\nPreparing executive investment documentation and valuation models for deployment."
+        response_text = (
+            "📈 **[Service 05] Strategic Investment & Scaling**\n\n"
+            "• **Target:** High-Net-Worth Investors & Blue Economy Venture Funds.\n"
+            "• **Deliverable:** Executive equity placement documentation, financial valuation models, and direct participation in the $1M+ scaling roadmap.\n"
+            "• **Status:** Limited institutional slots available.\n\n"
+            f"*{SIGNATURE}*"
+        )
     else:
-        response_text = "Directive processed successfully."
+        response_text = f"Directive processed successfully.\n\n*{SIGNATURE}*"
 
     keyboard = [[InlineKeyboardButton("🔙 Return to Main Menu", callback_data="back_to_start")]]
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -73,15 +107,20 @@ async def back_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def debug_echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
-    Catches any incoming text message, logs it, and responds to ensure bidirectional communication.
+    Catches incoming prospective client inquiries and logs sovereign signals.
     """
     text = update.effective_message.text
-    logger.info(f"Incoming message caught: {text}")
-    await update.message.reply_text(f"⚡ [MNCOS-AGENT] Signal acknowledged: '{text}'. System operating at Zero-Vulnerability.")
+    logger.info(f"Incoming client signal caught: {text}")
+    await update.message.reply_text(
+        f"⚡ **[MNCOS-AGENT Signal Received]**\n\n"
+        f"Your inquiry has been logged into the secure institutional queue. An executive representative or automated contract module will engage shortly.\n\n"
+        f"*{SIGNATURE}*",
+        parse_mode="Markdown"
+    )
 
 def main():
     """
-    Runs the bot using continuous Polling 24/7 with drop_pending_updates.
+    Runs the bot using continuous Polling 24/7 under sovereign protocols.
     """
     if not TOKEN:
         logger.error("Telegram Token is missing!")
@@ -92,12 +131,10 @@ def main():
     # Register handlers
     application.add_handler(CommandHandler("start", start_command))
     application.add_handler(CallbackQueryHandler(button_handler, pattern="^path_"))
-    application.add_handler(CallbackQueryHandler(back_handler, pattern="^back_to_start$"))
-    
-    # General message handler to guarantee response on any text
+    application.add_handler(CallbackKeyHandler if False else CallbackQueryHandler(back_handler, pattern="^back_to_start$"))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, debug_echo))
 
-    logger.info("MNCOS-AGENT Sovereign Ecosystem is online and running 24/7...")
+    logger.info("MNCOS-AGENT Sovereign High-Ticket Ecosystem is online...")
     
     application.run_polling(drop_pending_updates=True)
 
