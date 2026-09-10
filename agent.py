@@ -1,5 +1,6 @@
-
+import os
 import logging
+from flask import Flask, request
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
 
@@ -8,7 +9,7 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO
 )
-logger = logging.getLogger("MNCOS-Agent-Polling")
+logger = logging.getLogger("MNCOS-Agent-Webhook")
 
 # Sovereign Token for MNCOS-AGENT
 TOKEN = "8814574628:AAFAz9_RCOo8jMzL4wAtBY4kJfEAlTd_Dgc"
@@ -16,10 +17,12 @@ TOKEN = "8814574628:AAFAz9_RCOo8jMzL4wAtBY4kJfEAlTd_Dgc"
 # Official Digital Signature & Watermark
 SIGNATURE = "Verified by EL-KOPTAN | MNCOS Sovereign Infrastructure"
 
+app = Flask(__name__)
+
+# Initialize Application globally for Flask
+application = Application.builder().token(TOKEN).build()
+
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """
-    Presents the core sovereign high-ticket executive interface.
-    """
     welcome_message = (
         f"Welcome, Executive Partner 🫡\n\n"
         f"You have accessed the **MNCOS Multi-Agent Sovereign Ecosystem**.\n"
@@ -27,7 +30,6 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f"Select a strategic institutional pathway below to initiate deployment:"
     )
     
-    # High-Ticket B2B Service Pathways
     keyboard = [
         [InlineKeyboardButton("📋 [01] Scope, Timeline & Commercials ($25k+)", callback_data="path_scope")],
         [InlineKeyboardButton("🔒 [02] Confidential NDA & Sovereign Protocol", callback_data="path_nda")],
@@ -43,9 +45,6 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.callback_query.message.edit_text(welcome_message, reply_markup=reply_markup, parse_mode="Markdown")
 
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """
-    Handles high-ticket executive conversions and strategic pitch responses.
-    """
     query = update.callback_query
     await query.answer()
     
@@ -103,20 +102,28 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     await query.edit_message_text(text=response_text, reply_markup=reply_markup, parse_mode="Markdown")
 
-def main():
-    """
-    Start the bot using Polling mechanism.
-    """
-    application = Application.builder().token(TOKEN).build()
+# Register Handlers
+application.add_handler(CommandHandler("start", start_command))
+application.add_handler(CallbackQueryHandler(button_handler))
 
-    # Register handlers cleanly without restrictive regex patterns
-    application.add_handler(CommandHandler("start", start_command))
-    application.add_handler(CallbackQueryHandler(button_handler))
+@app.route(f"/{TOKEN}", methods=["POST"])
+def webhook():
+    """Endpoint to receive updates from Telegram"""
+    if request.method == "POST":
+        update = Update.de_json(request.get_json(force=True), application.bot)
+        # Run async application processing in sync Flask route context
+        import asyncio
+        async def process():
+            await application.initialize()
+            await application.process_update(update)
+        
+        asyncio.run(process())
+        return "OK", 200
 
-    logger.info("MNCOS-AGENT Polling Server is Starting...")
-    
-    # Run the bot until the user presses Ctrl-C
-    application.run_polling(allowed_updates=Update.ALL_TYPES)
+@app.route("/")
+def index():
+    return "MNCOS-Agent Sovereign Webhook Server is Online ⚓", 200
 
 if __name__ == "__main__":
-    main()
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+
