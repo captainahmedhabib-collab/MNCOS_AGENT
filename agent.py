@@ -1,6 +1,5 @@
-import os
+
 import logging
-from flask import Flask, request
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
 
@@ -9,35 +8,13 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO
 )
-logger = logging.getLogger("MNCOS-Agent-Webhook")
+logger = logging.getLogger("MNCOS-Agent-Polling")
 
 # Sovereign Token for MNCOS-AGENT
 TOKEN = "8814574628:AAFAz9_RCOo8jMzL4wAtBY4kJfEAlTd_Dgc"
 
 # Official Digital Signature & Watermark
-SIGNATURE = "Verified by Captain Ahmed Habib | MNCOS Sovereign Infrastructure"
-
-# Initialize Flask app for Webhook handling
-app = Flask(__name__)
-
-# Initialize Telegram Application globally
-telegram_app = None
-
-async def setup_telegram_bot():
-    """
-    Initializes the telegram application and registers handlers.
-    """
-    global telegram_app
-    if telegram_app is None:
-        telegram_app = Application.builder().token(TOKEN).build()
-        
-        # Register handlers
-        telegram_app.add_handler(CommandHandler("start", start_command))
-        telegram_app.add_handler(CallbackQueryHandler(button_handler, pattern="^path_"))
-        telegram_app.add_handler(CallbackQueryHandler(back_handler, pattern="^back_to_start$"))
-        
-        await telegram_app.initialize()
-    return telegram_app
+SIGNATURE = "Verified by EL-KOPTAN | MNCOS Sovereign Infrastructure"
 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
@@ -74,6 +51,10 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     data = query.data
     
+    if data == "back_to_start":
+        await start_command(update, context)
+        return
+
     if data == "path_scope":
         response_text = (
             "🎯 **[Service 01] Commercial Scope & Compliance Framework**\n\n"
@@ -122,31 +103,20 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     await query.edit_message_text(text=response_text, reply_markup=reply_markup, parse_mode="Markdown")
 
-async def back_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.callback_query
-    await query.answer()
-    await start_command(update, context)
+def main():
+    """
+    Start the bot using Polling mechanism.
+    """
+    application = Application.builder().token(TOKEN).build()
 
-@app.route(f"/{TOKEN}", methods=["POST"])
-def webhook():
-    """
-    Endpoint that receives incoming updates from Telegram via Webhook.
-    """
-    import asyncio
-    json_data = request.get_json(force=True)
+    # Register handlers cleanly without restrictive regex patterns
+    application.add_handler(CommandHandler("start", start_command))
+    application.add_handler(CallbackQueryHandler(button_handler))
+
+    logger.info("MNCOS-AGENT Polling Server is Starting...")
     
-    async def process():
-        bot_app = await setup_telegram_bot()
-        update = Update.de_json(json_data, bot_app.bot)
-        await bot_app.process_update(update)
-        
-    asyncio.run(process())
-    return "OK", 200
-
-@app.route("/", methods=["GET"])
-def index():
-    return "MNCOS-AGENT Sovereign Webhook Server is Online.", 200
+    # Run the bot until the user presses Ctrl-C
+    application.run_polling(allowed_updates=Update.ALL_TYPES)
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
-
+    main()
