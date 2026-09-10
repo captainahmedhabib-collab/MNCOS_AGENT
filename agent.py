@@ -1,4 +1,3 @@
-
 import os
 import logging
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
@@ -11,32 +10,20 @@ logging.basicConfig(
 )
 logger = logging.getLogger("MNCOS-Agent")
 
-# Direct Bot Token integration for flawless execution under EL-KOPTAN
+# Direct Bot Token integration for EL-KOPTAN
 TOKEN = "8947725456:AAFLvTSRz0g3W30TWpBeoBMvlm2W7-AcLao"
 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
-    Dynamic multilingual welcome handler. Detects user language 
-    and presents the 5 core sovereign services in polished, innovative English buttons.
+    Presents the core sovereign services interface.
     """
-    user = update.effective_user
-    lang_code = user.language_code if user and user.language_code else "en"
+    welcome_message = (
+        f"Welcome, Captain Ahmed Habib (EL-KOPTAN) 🫡\n\n"
+        f"The **MNCOS Multi-Agent Sovereign Ecosystem** is live.\n"
+        f"Please select your strategic operational pathway below:"
+    )
     
-    # Dynamic greeting based on user language
-    if lang_code.startswith("ar"):
-        welcome_message = (
-            f"مرحباً بك يا EL-KOPTAN / عميلنا العزيز 🫡\n\n"
-            f"Welcome to the **MNCOS Multi-Agent Sovereign Ecosystem**.\n"
-            f"Please select your strategic operational pathway below:"
-        )
-    else:
-        welcome_message = (
-            f"Welcome, EL-KOPTAN & Esteemed Partners 🫡\n\n"
-            f"The **MNCOS Multi-Agent Sovereign Ecosystem** is live.\n"
-            f"Please select your desired strategic pathway below:"
-        )
-    
-    # Innovative, sleek English buttons for the 5 core services
+    # Sleek English buttons for the core services
     keyboard = [
         [InlineKeyboardButton("📋 [01] Scope, Timeline & Commercials", callback_data="path_scope")],
         [InlineKeyboardButton("🔒 [02] Confidential NDA Session", callback_data="path_nda")],
@@ -85,7 +72,7 @@ async def back_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 def main():
     """
-    Runs the bot using continuous Polling 24/7
+    Runs the bot using continuous Polling 24/7 with drop_pending_updates to clear old webhooks.
     """
     if not TOKEN:
         logger.error("Telegram Token is missing!")
@@ -99,7 +86,9 @@ def main():
     application.add_handler(CallbackQueryHandler(back_handler, pattern="^back_to_start$"))
 
     logger.info("MNCOS Multi-Agent Sovereign Ecosystem is online and running 24/7...")
-    application.run_polling()
+    
+    # drop_pending_updates=True clears old webhook packets to ensure direct local polling
+    application.run_polling(drop_pending_updates=True)
 
 if __name__ == '__main__':
     main()
