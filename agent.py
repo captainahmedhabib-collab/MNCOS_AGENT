@@ -1,6 +1,5 @@
-import os
+
 import logging
-from flask import Flask, request
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
 
@@ -9,18 +8,13 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO
 )
-logger = logging.getLogger("MNCOS-Agent-Webhook")
+logger = logging.getLogger("MNCOS-Agent-Codespace")
 
 # Sovereign Token for MNCOS-AGENT
 TOKEN = "8814574628:AAFAz9_RCOo8jMzL4wAtBY4kJfEAlTd_Dgc"
 
 # Official Digital Signature & Watermark
 SIGNATURE = "Verified by EL-KOPTAN | MNCOS Sovereign Infrastructure"
-
-app = Flask(__name__)
-
-# Initialize Application globally for Flask
-application = Application.builder().token(TOKEN).build()
 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     welcome_message = (
@@ -102,28 +96,15 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     await query.edit_message_text(text=response_text, reply_markup=reply_markup, parse_mode="Markdown")
 
-# Register Handlers
-application.add_handler(CommandHandler("start", start_command))
-application.add_handler(CallbackQueryHandler(button_handler))
+def main():
+    application = Application.builder().token(TOKEN).build()
 
-@app.route(f"/{TOKEN}", methods=["POST"])
-def webhook():
-    """Endpoint to receive updates from Telegram"""
-    if request.method == "POST":
-        update = Update.de_json(request.get_json(force=True), application.bot)
-        # Run async application processing in sync Flask route context
-        import asyncio
-        async def process():
-            await application.initialize()
-            await application.process_update(update)
-        
-        asyncio.run(process())
-        return "OK", 200
+    application.add_handler(CommandHandler("start", start_command))
+    application.add_handler(CallbackQueryHandler(button_handler))
 
-@app.route("/")
-def index():
-    return "MNCOS-Agent Sovereign Webhook Server is Online ⚓", 200
+    logger.info("MNCOS-AGENT Codespace Polling Server is Starting...")
+    application.run_polling(allowed_updates=Update.ALL_TYPES)
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    main()
 
